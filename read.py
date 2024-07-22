@@ -37,8 +37,11 @@ url_patterns = [
 ]
 
 # Função para verificar se a URL contém qualquer um dos padrões
-def url_contains_any_pattern(url, patterns):
-    return any(re.search(pattern, url) for pattern in patterns)
+def url_matches_any_pattern(url, patterns):
+    for pattern in patterns:
+        if re.search(pattern, url):
+            return True
+    return False
 
 # Função para extrair dados de um único arquivo de log
 def extract_log_data_from_file(log_file_path):
@@ -53,7 +56,7 @@ def extract_log_data_from_file(log_file_path):
                 time = ":".join(time)
                 request_url = match.group('request').split(' ')[1]
                 
-                if url_contains_any_pattern(request_url, url_patterns):
+                if url_matches_any_pattern(request_url, url_patterns):
                     extracted_data.append({
                         'ip': match.group('ip'),
                         'date': date,
