@@ -11,6 +11,35 @@ log_pattern = re.compile(
 # Caminho relativo para o diretório que contém os arquivos de log
 log_dir_path = './logs'
 
+# Lista de URLs para filtrar
+url_patterns = [
+    r'registrar/',
+    r'logout/',
+    r'update-profile/',
+    r'cursos/',
+    r'ch/',
+    r'inscricoes/',
+    r'curso_detail/\d+',
+    r'curso_detail/\d+/[^/]+',
+    r'inscricao_existente/',
+    r'inscrever/\d+/',
+    r'avaliacao/\d+/',
+    r'inscricao_cancelar/\d+/',
+    r'validar_ch/',
+    r'download_all_pdfs/',
+    r'generate_all_pdfs/\d+/',
+    r'generate_all_pdfs/\d+/\d+/',
+    r'generate_single_pdf/\d+/',
+    r'reset-password/',
+    r'change-password/',
+    r'curadoria_show/',
+    r'votar/',
+]
+
+# Função para verificar se a URL contém qualquer um dos padrões
+def url_contains_any_pattern(url, patterns):
+    return any(re.search(pattern, url) for pattern in patterns)
+
 # Função para extrair dados de um único arquivo de log
 def extract_log_data_from_file(log_file_path):
     extracted_data = []
@@ -22,12 +51,15 @@ def extract_log_data_from_file(log_file_path):
                 datetime_str = match.group('datetime')
                 date, time = datetime_str.split(':', 1)[0], datetime_str.split(':', 1)[1:]
                 time = ":".join(time)
-                extracted_data.append({
-                    'ip': match.group('ip'),
-                    'date': date,
-                    'time': time,
-                    'request': match.group('request')
-                })
+                request_url = match.group('request').split(' ')[1]
+                
+                if url_contains_any_pattern(request_url, url_patterns):
+                    extracted_data.append({
+                        'ip': match.group('ip'),
+                        'date': date,
+                        'time': time,
+                        'request': request_url
+                    })
     
     return extracted_data
 
