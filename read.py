@@ -56,13 +56,18 @@ def extract_log_data_from_file(log_file_path):
                 time = ":".join(time)
                 request_url = match.group('request').split(' ')[1]
                 
-                if url_matches_any_pattern(request_url, url_patterns):
-                    extracted_data.append({
-                        'ip': match.group('ip'),
-                        'date': date,
-                        'time': time,
-                        'request': request_url
-                    })
+                if '/accounts' not in request_url and '/admin' not in request_url:
+                    if url_matches_any_pattern(request_url, url_patterns):
+                        # Verifica e substitui requests que contêm '/ch/' ou '/ch/?'
+                        if request_url.startswith('/ch/?') and len(request_url) > 4:
+                            request_url = '/ch/post'
+                        
+                        extracted_data.append({
+                            'ip': match.group('ip'),
+                            'date': date,
+                            'time': time,
+                            'request': request_url
+                        })
     
     return extracted_data
 
